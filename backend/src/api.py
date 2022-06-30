@@ -94,41 +94,23 @@ def get_drinks_details(payload):
 def post_drinks(payload):
     body = request.get_json()
     
-    print(body)
+    # print(body)
+    if body == None:
+        abort(404)
+   
+    drink_title = body.get("title", None)
+    drink_recipe = body.get("recipe", None)
     
-    try: 
-        req_recipe = body['recipe']
-        if isinstance(req_recipe, dict):
-            req_recipe = [req_recipe]
-            
-        drink = Drink()
-        drink.title =  body['title']
-        drink.recipe = json.dumps(req_recipe)
+    try:
+        drink = Drink(title = drink_title, recipe = drink_recipe)
         drink.insert()
-        
         return {
             'success': True, 
             'drinks': drink.long()
         }
-        
+            
     except:
         abort(422)
-    # if body == None:
-    #     abort(404)
-   
-    # drink_title = body.get("title", None)
-    # drink_recipe = body.get("recipe", None)
-    
-    # try:
-    #     drink = Drink(title = drink_title, recipe = drink_recipe)
-    #     drink.insert()
-    #     return {
-    #         'success': True, 
-    #         'drinks': drink.long()
-    #     }
-            
-    # except:
-    #     abort(422)
         
 
 '''
