@@ -40,18 +40,13 @@ def after_request(response):
 @app.route('/drinks', methods=['GET'])
 def get_drinks():
     drinks = Drink.query.order_by(Drink.id).all()
-    # formatted_drinks = [item.format() for item in drinks]
-    
-    # print(drinks)
     
     if drinks is None:
         abort(404)
         
     return{
         "success": True,
-        # "drinks": formatted_drinks,
         "drinks": [ drink.short() for drink in drinks]
-        # "drinks": {drink.id: drink.title for drink in drinks}
         
     }
 
@@ -69,7 +64,6 @@ def get_drinks():
 @requires_auth('get:drinks-detail')
 def get_drinks_details(payload):
     drinks= Drink.query.order_by(Drink.id).all()
-    # formatted_drink = [drink.long() for drink in drinks]
     
     if len(drinks) == 0:
         abort(404)
@@ -77,7 +71,6 @@ def get_drinks_details(payload):
     return{
         'succcess': True,
         'drinks': [drink.long() for drink in drinks]
-        # 'drinks': formatted_drink
     }
 
 '''
@@ -94,7 +87,6 @@ def get_drinks_details(payload):
 def post_drinks(payload):
     body = request.get_json()
     
-    # print(body)
     if body == None:
         abort(404)
    
@@ -102,11 +94,11 @@ def post_drinks(payload):
     drink_recipe = body.get("recipe", None)
     
     try:
-        drink = Drink(title = drink_title, recipe = drink_recipe)
+        drink = Drink(title = drink_title, recipe = json.dumps(drink_recipe))
         drink.insert()
         return {
             'success': True, 
-            'drinks': drink.long()
+            'drinks': [drink.long()]
         }
             
     except:
@@ -129,8 +121,6 @@ def post_drinks(payload):
 def update_drink(payload, drink_id):
     body = request.get_json()
     
-    print(body)
-    
     if body is None:
         abort(404)
     
@@ -141,7 +131,7 @@ def update_drink(payload, drink_id):
             abort(404)
             
         drink.title = body.get('title')
-        drink.recipe = body.get('recipe')
+        drink.recipe = json.dumps('recipe')
         
         drink.update()
         
@@ -231,23 +221,7 @@ def token_not_valid(auth_error):
         'message': auth_error.error
     }, auth_error.status_code
 
-# @app.errorhandler(400)
-# def token_not_valid(error):
-#     return{
-#         'success': False,
-#         'error': 401,
-#         'message': 'Token expired or not found'
-#     },401
-    
 
-# @app.errorhandler(403)
-# def token_not_valid(error):
-#     return{
-#         'success': False,
-#         'error': 403,
-#         'message': 'Permission not found'
-#     },403
-    
 
 '''
 @TODO implement error handler for AuthError
